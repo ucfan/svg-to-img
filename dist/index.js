@@ -13,6 +13,16 @@ const getBrowser = async () => {
     }
     return browserInstance;
 };
+const getPage = async (browser) => {
+    if (!browser) {
+        browser = await getBrowser();
+    }
+    const pages = await browser.pages();
+    if (pages.length > 0) {
+        return pages[0];
+    }
+    return await browser.newPage();
+};
 const scheduleBrowserForDestruction = () => {
     clearTimeout(browserDestructionTimeout);
     browserDestructionTimeout = setTimeout(() => {
@@ -27,7 +37,7 @@ const convertSvg = async (inputSvg, passedOptions) => {
     const svg = Buffer.isBuffer(inputSvg) ? inputSvg.toString("utf8") : inputSvg;
     const options = Object.assign({}, constants_1.defaultOptions, passedOptions);
     const browser = await getBrowser();
-    const page = (await browser.pages())[1];
+    const page = await getPage(browser);
     // ⚠️ Offline mode is enabled to prevent any HTTP requests over the network
     await page.setOfflineMode(true);
     // Infer the file type from the file path if no type is provided
